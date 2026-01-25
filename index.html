@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bio Profile</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        /* --- CẤU HÌNH CHUNG --- */
+        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            color: #fff;
+            min-height: 100vh;
+            display: flex; justify-content: center; align-items: center;
+            background: url('nen.jpg') no-repeat center center fixed;
+            background-size: cover;
+        }
+
+        .overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.1); z-index: 1;
+        }
+
+        /* --- CONTAINER KÍNH LỎNG SIÊU TRONG & VIỀN 3D --- */
+        .container {
+            position: relative; z-index: 2; width: 92%; max-width: 400px;
+            padding: 50px 25px 35px; text-align: center;
+            
+            /* Tăng độ trong suốt và bão hòa màu nền */
+            background: rgba(255, 255, 255, 0.05); 
+            backdrop-filter: blur(30px) saturate(250%) brightness(1.2);
+            -webkit-backdrop-filter: blur(30px) saturate(250%) brightness(1.2);
+            border-radius: 45px;
+            
+            /* Tạo hiệu ứng viền kính 3D sáng bóng bằng box-shadow */
+            box-shadow: 
+                inset 0 1px 2px rgba(255, 255, 255, 0.5), /* Viền sáng đỉnh */
+                inset 0 -1px 2px rgba(0, 0, 0, 0.1),      /* Viền tối đáy */
+                0 25px 50px rgba(0, 0, 0, 0.25);          /* Bóng đổ sâu */
+            border: 1px solid transparent; /* Viền trong suốt để giữ box-shadow inset */
+
+            /* Transition mượt cho chiều cao để chống giật nền */
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.5, 1);
+            overflow: hidden;
+        }
+
+        /* Lớp phủ tạo hiệu ứng phản quang nhẹ */
+        .container::after {
+            content: ''; position: absolute; inset: 0; border-radius: 45px;
+            background: linear-gradient(135deg, rgba(255,255,255,0.2) 0%, transparent 40%, transparent 60%, rgba(255,255,255,0.1) 100%);
+            pointer-events: none;
+        }
+
+        .avatar {
+            width: 95px; height: 95px; border-radius: 50%; object-fit: cover;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.25);
+            border: 3px solid rgba(255, 255, 255, 0.3);
+        }
+
+        h1 { font-size: 24px; font-weight: 700; letter-spacing: -0.5px; margin-top: 15px; }
+        .nickname { font-size: 13px; opacity: 0.6; margin-bottom: 35px; display: block; }
+        
+        /* --- TABS PILL --- */
+        .tabs-wrapper {
+            background: rgba(0, 0, 0, 0.15); padding: 5px; border-radius: 25px;
+            display: flex; position: relative; margin-bottom: 30px;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.1);
+        }
+        .tab-btn {
+            flex: 1; padding: 12px; border: none; background: none;
+            color: #fff; font-size: 14px; font-weight: 600; cursor: pointer;
+            z-index: 2; transition: 0.3s; opacity: 0.6; text-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+        .tab-btn.active { opacity: 1; }
+        .tab-slider {
+            position: absolute; height: calc(100% - 10px); width: calc(50% - 5px);
+            background: rgba(255, 255, 255, 0.25); backdrop-filter: blur(15px);
+            border-radius: 20px; top: 5px; left: 5px; z-index: 1;
+            transition: transform 0.5s cubic-bezier(0.2, 1.2, 0.2, 1); /* Hiệu ứng nảy nhẹ khi trượt */
+            box-shadow: 0 2px 10px rgba(0,0,0,0.15);
+        }
+
+        /* --- NỘI DUNG --- */
+        .content-section { display: none; flex-direction: column; gap: 15px; }
+        .content-section.active { display: flex; animation: contentFade 0.6s ease; }
+        @keyframes contentFade { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+
+        .btn-link {
+            display: block; background: rgba(255, 255, 255, 0.1);
+            color: #fff; text-decoration: none; padding: 18px;
+            border-radius: 22px; font-size: 15px; font-weight: 500;
+            transition: 0.3s; cursor: pointer; position: relative;
+            border: 1px solid rgba(255, 255, 255, 0.15);
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .btn-link:hover { background: rgba(255, 255, 255, 0.18); transform: translateY(-2px); }
+        .btn-link:active { transform: scale(0.98) translateY(0); background: rgba(255, 255, 255, 0.25); }
+        .zalo-btn { background: rgba(0, 104, 255, 0.3); border-color: rgba(0, 104, 255, 0.5); }
+
+        /* Màu chữ Email khi hiện - Trắng sáng để không bị ám màu nền */
+        #email-text.showing { color: #ffffff; font-weight: 700; text-shadow: 0 0 15px rgba(255,255,255,0.6); }
+
+        /* --- QR CODE LIQUID BOUNCE ANIMATION --- */
+        #qr-wrapper { 
+            display: grid; 
+            grid-template-rows: 0fr; /* Chiều cao ban đầu là 0 */
+            transition: grid-template-rows 0.7s cubic-bezier(0.25, 1, 0.5, 1); /* Transition mượt cho wrapper */
+        }
+        #qr-wrapper.open { grid-template-rows: 1fr; margin-top: 20px; }
+        
+        #qr-container { overflow: hidden; }
+        
+        #qr-image { 
+            width: 100%; max-width: 260px; height: auto; border-radius: 35px; 
+            margin: 5px auto; padding: 15px; background: #fff;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2);
+            /* Animation giọt nước nảy (Elastic Bounce) */
+            transform: scale(0.6) translateY(-80px); opacity: 0; filter: blur(10px);
+            /* Sử dụng cubic-bezier có độ nảy cao */
+            transition: all 0.7s cubic-bezier(0.34, 1.56, 0.64, 1); 
+        }
+        #qr-wrapper.open #qr-image {
+            transform: scale(1) translateY(0); opacity: 1; filter: blur(0);
+        }
+
+        .credit { margin-top: 50px; font-size: 11px; opacity: 0.5; letter-spacing: 3px; font-weight: 700; }
+    </style>
+</head>
+<body>
+    <div class="overlay"></div>
+    <div class="container">
+        <img src="avatar.jpg" alt="Avatar" class="avatar">
+        <h1 id="user-name"></h1>
+        <span class="nickname" id="user-nickname"></span>
+        <div class="tabs-wrapper">
+            <div class="tab-slider" id="slider"></div>
+            <button class="tab-btn active" onclick="switchTab('personal', this, 0)">Cá nhân</button>
+            <button class="tab-btn" onclick="switchTab('community', this, 100)">Cộng đồng</button>
+        </div>
+        
+        <div id="personal" class="content-section active">
+            <div id="personal-links" style="display: flex; flex-direction: column; gap: 15px;"></div>
+            
+            <div class="btn-link" id="email-btn" onclick="toggleEmail()">
+                <span id="email-text">Gửi Email cho tôi</span>
+            </div>
+            
+            <div class="btn-link zalo-btn" onclick="toggleZalo()">Zalo QR Code</div>
+            
+            <div id="qr-wrapper">
+                <div id="qr-container">
+                    <img src="zalo-qr.jpg" id="qr-image" alt="Zalo QR">
+                </div>
+            </div>
+        </div>
+        
+        <div id="community" class="content-section">
+            <div id="community-links" style="display: flex; flex-direction: column; gap: 15px;"></div>
+        </div>
+        <div class="credit">CRE: KHANG0811</div>
+    </div>
+    <script src="config.js"></script>
+    <script>
+        document.getElementById('user-name').innerText = CONFIG.profile.name;
+        document.getElementById('user-nickname').innerText = CONFIG.profile.nickname;
+        const render = (links, id) => {
+            document.getElementById(id).innerHTML = links.map(l => `<a href="${l.url}" class="btn-link" target="_blank">${l.title}</a>`).join('');
+        };
+        render(CONFIG.personalLinks, 'personal-links');
+        render(CONFIG.communityLinks, 'community-links');
+
+        function switchTab(id, btn, pos) {
+            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+            document.getElementById(id).classList.add('active');
+            btn.classList.add('active');
+            document.getElementById('slider').style.transform = `translateX(${pos}%)`;
+            // Đóng QR khi chuyển tab
+            document.getElementById('qr-wrapper').classList.remove('open');
+        }
+
+        let isEmailShowing = false;
+        function toggleEmail() {
+            const textSpan = document.getElementById('email-text');
+            const btn = document.getElementById('email-btn');
+            if (!isEmailShowing) {
+                textSpan.innerText = CONFIG.email;
+                textSpan.classList.add('showing');
+                btn.onclick = () => window.location.href = "mailto:" + CONFIG.email;
+                isEmailShowing = true;
+            } else {
+                textSpan.innerText = "Gửi Email cho tôi";
+                textSpan.classList.remove('showing');
+                btn.onclick = toggleEmail; // Reset lại sự kiện click gốc
+                isEmailShowing = false;
+            }
+        }
+
+        function toggleZalo() {
+            document.getElementById('qr-wrapper').classList.toggle('open');
+        }
+    </script>
+</body>
+</html>

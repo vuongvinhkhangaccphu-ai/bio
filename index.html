@@ -2,116 +2,124 @@
 <html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bio Profile | Khang0811</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     
     <style>
-        /* --- GIỮ NGUYÊN CSS GỐC CỦA BẠN --- */
         * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
         
+        html { scrollbar-gutter: stable; }
+
         body {
             font-family: 'Inter', sans-serif;
             color: #fff;
             min-height: 100vh;
             display: flex; justify-content: center; align-items: center;
-            background: url('nen.jpg') no-repeat center center fixed;
+            background: #000 url('nen.jpg') no-repeat center center fixed;
             background-size: cover;
-            padding: 20px;
-            overflow: hidden; /* Chặn cuộn trang thừa */
+            overflow-x: hidden;
+            padding: 20px 15px;
         }
+
+        ::-webkit-scrollbar { width: 0px; background: transparent; }
 
         .overlay {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.4);
+            /* Làm sáng hơn một tí: Giảm từ 0.6 xuống 0.45 */
+            background: rgba(0, 0, 0, 0.45); 
             z-index: 1;
         }
 
         .container {
             position: relative; z-index: 2; width: 100%; max-width: 380px;
-            min-height: 550px; /* Tăng nhẹ chiều cao để đỡ bị nhảy */
-            padding: 40px 20px;
+            padding: 40px 0 30px;
             text-align: center;
-            background: rgba(20, 20, 20, 0.2);
-            backdrop-filter: blur(30px) saturate(180%) brightness(0.9);
-            -webkit-backdrop-filter: blur(30px) saturate(180%) brightness(0.9);
-            border-radius: 40px;
-            border: 1px solid rgba(255, 255, 255, 0.15);
-            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+            /* Làm sáng kính: Giảm độ tối và tăng độ bão hòa nhẹ */
+            background: rgba(25, 25, 25, 0.4); 
+            backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
+            border-radius: 42px;
+            /* Nhấn mạnh viền sáng phản chiếu (Edge light) */
+            border: 1px solid rgba(255, 255, 255, 0.18);
+            box-shadow: 
+                inset 0 1.5px 4px rgba(255, 255, 255, 0.2),
+                0 30px 60px rgba(0, 0, 0, 0.5);
             display: flex; flex-direction: column;
+            transition: height 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            will-change: height;
         }
 
         .avatar {
             width: 90px; height: 90px; border-radius: 50%; object-fit: cover;
-            border: 2px solid rgba(255, 255, 255, 0.4);
+            border: 2px solid rgba(255, 255, 255, 0.35); /* Sáng hơn một tí */
             margin: 0 auto 15px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4);
         }
 
-        h1 { font-size: 22px; font-weight: 700; margin-bottom: 5px; }
-        .nickname { font-size: 13px; opacity: 0.5; margin-bottom: 25px; display: block; }
+        h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; text-shadow: 0 2px 10px rgba(0,0,0,0.3); }
+        .nickname { font-size: 14px; opacity: 0.5; margin-bottom: 25px; display: block; }
         
-        /* --- PHẦN SỬA LỖI CĂN CHỈNH TAB (FLEXBOX) --- */
-        .tabs-wrapper {
-            background: rgba(0, 0, 0, 0.3); padding: 4px; border-radius: 22px;
-            display: flex; position: relative; margin-bottom: 25px;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            justify-content: space-between; /* Căn đều 2 đầu */
+        .tabs-wrapper { 
+            background: rgba(255, 255, 255, 0.08); /* Sáng hơn một tí */
+            padding: 5px; border-radius: 20px; display: flex; position: relative; 
+            margin: 0 25px 25px; border: 1px solid rgba(255, 255, 255, 0.1); 
         }
-        .tab-btn {
-            flex: 1; /* QUAN TRỌNG: Ép các nút bằng nhau 100% */
-            width: 0; /* Mẹo CSS để chữ dài không đẩy nút to ra */
-            padding: 12px 0; /* Bỏ padding ngang để căn giữa chuẩn hơn */
-            border: none; background: none;
-            color: #fff; font-size: 13px; font-weight: 600; cursor: pointer;
-            z-index: 2; transition: opacity 0.3s; opacity: 0.5;
-            white-space: nowrap; /* Không xuống dòng chữ trong tab */
-        }
+        
+        .tab-btn { flex: 1; padding: 12px 0; border: none; background: none; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; z-index: 2; transition: 0.3s; opacity: 0.5; }
         .tab-btn.active { opacity: 1; }
         
-        /* Slider tự động tính toán width bằng JS */
-        .tab-slider {
-            position: absolute; height: calc(100% - 8px); 
-            background: rgba(255, 255, 255, 0.15); border-radius: 18px; 
-            top: 4px; left: 4px; z-index: 1;
-            transition: transform 0.4s cubic-bezier(0.23, 1, 0.32, 1); /* Animation mượt hơn */
+        .tab-slider { 
+            position: absolute; height: calc(100% - 10px); top: 5px; left: 5px; 
+            background: rgba(255, 255, 255, 0.15); border-radius: 16px; 
+            z-index: 1; transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); 
         }
 
-        /* CONTENT ENGINE */
-        .content-container { position: relative; flex-grow: 1; }
-        
-        .content-section { 
-            position: absolute; top: 0; left: 0; width: 100%;
-            display: none; flex-direction: column; gap: 12px;
-            opacity: 0; transform: scale(0.95) translateY(10px);
-            transition: opacity 0.3s ease, transform 0.4s cubic-bezier(0.25, 1, 0.5, 1);
-        }
-        
-        .content-section.active { 
-            display: flex; opacity: 1; 
-            transform: scale(1) translateY(0); 
+        .content-window { width: 100%; overflow: hidden; }
+        .content-wrapper { display: flex; width: 100%; transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .content-section { flex: 0 0 100%; padding: 0 25px; display: flex; flex-direction: column; gap: 12px; opacity: 0; scale: 0.98; transition: opacity 0.4s, scale 0.5s; }
+        .content-section.active { opacity: 1; scale: 1; }
+
+        /* SÁNG HÓA CÁC NÚT BẤM */
+        .btn-link { 
+            display: block; background: rgba(255, 255, 255, 0.1); /* Tăng từ 0.06 */
+            color: #fff; text-decoration: none; padding: 17px; border-radius: 18px; 
+            font-size: 15px; font-weight: 500; border: 1px solid rgba(255, 255, 255, 0.1); 
+            transition: 0.2s; 
         }
 
-        .btn-link {
-            display: block; background: rgba(255, 255, 255, 0.06);
-            color: #fff; text-decoration: none; padding: 16px;
-            border-radius: 20px; font-size: 14px; font-weight: 500;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            transition: transform 0.2s ease, background 0.2s;
+        .zalo-expansion-container {
+            background: rgba(0, 104, 255, 0.3); /* Tăng từ 0.2 */
+            border: 1px solid rgba(0, 104, 255, 0.3);
+            border-radius: 18px;
+            overflow: hidden;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            cursor: pointer;
         }
-        .btn-link:active { transform: scale(0.96); background: rgba(255, 255, 255, 0.1); }
-        .zalo-btn { background: rgba(0, 104, 255, 0.2); border-color: rgba(0, 104, 255, 0.3); }
 
-        #qr-wrapper { display: grid; grid-template-rows: 0fr; transition: grid-template-rows 0.4s ease; }
-        #qr-wrapper.open { grid-template-rows: 1fr; margin-top: 15px; }
-        #qr-container { overflow: hidden; }
-        #qr-image { 
-            width: 100%; max-width: 240px; border-radius: 28px; margin: 5px auto; padding: 10px; background: #fff;
-            transform: scale(0.8) translateY(-20px); opacity: 0;
-            transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);
+        .zalo-label { padding: 17px; font-size: 15px; font-weight: 500; color: #fff; display: block; }
+
+        .qr-reveal {
+            max-height: 0; opacity: 0; padding: 0 12px;
+            transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            overflow: hidden;
         }
-        #qr-wrapper.open #qr-image { transform: scale(1) translateY(0); opacity: 1; }
 
-        .credit { margin-top: auto; padding-top: 20px; font-size: 10px; opacity: 0.3; letter-spacing: 2px; text-transform: uppercase; }
+        .zalo-expansion-container.open {
+            background: rgba(0, 104, 255, 0.4);
+            border-radius: 25px;
+        }
+
+        .zalo-expansion-container.open .qr-reveal {
+            max-height: 550px; opacity: 1; padding-bottom: 12px;
+        }
+
+        .qr-image-auto {
+            width: 100%; height: auto; display: block; border-radius: 15px;
+            background: #fff; box-shadow: 0 10px 20px rgba(0,0,0,0.2);
+        }
+
+        .credit { margin-top: 40px; font-size: 10px; opacity: 0.25; letter-spacing: 2px; }
     </style>
 </head>
 <body>
@@ -120,102 +128,66 @@
         <img src="avatar.jpg" alt="Avatar" class="avatar">
         <h1 id="user-name"></h1>
         <span class="nickname" id="user-nickname"></span>
-
-        <div class="tabs-wrapper" id="tabs-header">
-            <div class="tab-slider" id="slider"></div>
-        </div>
-
-        <div class="content-container" id="tabs-content"></div>
-
+        <div class="tabs-wrapper" id="tabs-header"><div class="tab-slider" id="slider"></div></div>
+        <div class="content-window"><div class="content-wrapper" id="master-slider"></div></div>
         <div class="credit">cre: khang0811</div>
     </div>
 
     <script src="config.js"></script>
     <script>
-        // Init
         document.getElementById('user-name').innerText = CONFIG.profile.name;
         document.getElementById('user-nickname').innerText = CONFIG.profile.nickname;
-        
         const header = document.getElementById('tabs-header');
-        const content = document.getElementById('tabs-content');
+        const masterSlider = document.getElementById('master-slider');
         const slider = document.getElementById('slider');
-
-        // --- CƠ CHẾ TỰ ĐỘNG CĂN CHỈNH ---
         const tabCount = CONFIG.tabs.length;
-        // Tính toán độ rộng slider: 100% chia cho số lượng tab
-        slider.style.width = `calc(${100 / tabCount}% - 8px)`;
 
         CONFIG.tabs.forEach((tab, index) => {
-            // 1. Tạo Nút Tab
             const btn = document.createElement('button');
             btn.className = `tab-btn ${index === 0 ? 'active' : ''}`;
             btn.innerText = tab.title;
-            // Tính vị trí trượt: index * 100%
-            btn.onclick = (e) => switchTab(tab.id, e.target, index * 100);
+            btn.onclick = () => handleTabClick(index);
             header.appendChild(btn);
-
-            // 2. Tạo Nội Dung Tab
             const section = document.createElement('div');
-            section.id = tab.id;
             section.className = `content-section ${index === 0 ? 'active' : ''}`;
-            
-            // Render danh sách link
             let html = tab.links.map(l => `<a href="${l.url}" class="btn-link" target="_blank">${l.title}</a>`).join('');
-            
-            // Nếu tab có bật chế độ đặc biệt (showSpecial) thì thêm nút Email/Zalo
             if(tab.showSpecial) {
-                html += `
-                    <div class="btn-link" id="email-btn" onclick="toggleEmail()">Gửi Email cho tôi</div>
-                    <div class="btn-link zalo-btn" onclick="toggleZalo()">Zalo QR Code</div>
-                    <div id="qr-wrapper">
-                        <div id="qr-container"><img src="zalo-qr.jpg" id="qr-image" alt="Zalo QR"></div>
-                    </div>
-                `;
+                html += `<div class="btn-link" id="email-btn" onclick="toggleEmail()">Gửi Email cho tôi</div>
+                         <div class="zalo-expansion-container" id="zalo-box" onclick="toggleZalo()">
+                            <div class="zalo-label">Zalo QR Code</div>
+                            <div class="qr-reveal"><img src="zalo-qr.jpg" class="qr-image-auto" alt="Zalo QR"></div>
+                         </div>`;
             }
-            
             section.innerHTML = html;
-            content.appendChild(section);
+            masterSlider.appendChild(section);
         });
 
-        // Hàm chuyển Tab Siêu Mượt
-        function switchTab(id, btn, pos) {
-            // Trượt slider
-            slider.style.transform = `translateX(${pos}%)`;
-            
-            // Đổi trạng thái nút
-            document.querySelectorAll('.tab-btn').forEach(t => t.classList.remove('active'));
-            btn.classList.add('active');
-
-            // Đổi nội dung
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            const activeSection = document.getElementById(id);
-            activeSection.classList.add('active');
-
-            // Đóng QR nếu đang mở
-            const qrWrapper = document.getElementById('qr-wrapper');
-            if(qrWrapper) qrWrapper.classList.remove('open');
+        function updateSlider(index) {
+            const wrapperWidth = header.clientWidth - 10; 
+            const tabWidth = wrapperWidth / tabCount;
+            slider.style.width = `${tabWidth}px`;
+            slider.style.transform = `translateX(${index * tabWidth}px)`;
+            masterSlider.style.transform = `translateX(-${index * 100}%)`;
         }
 
-        let isEmailShowing = false;
+        function handleTabClick(index) {
+            updateSlider(index);
+            document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
+            document.querySelectorAll('.content-section').forEach((sec, i) => sec.classList.toggle('active', i === index));
+            const zaloBox = document.getElementById('zalo-box');
+            if(zaloBox) zaloBox.classList.remove('open');
+        }
+
         function toggleEmail() {
             const btn = document.getElementById('email-btn');
-            if(!isEmailShowing) {
-                btn.innerText = CONFIG.email;
-                btn.style.fontWeight = "700";
-                btn.style.background = "rgba(255,255,255,0.15)";
-                isEmailShowing = true;
-            } else {
-                btn.innerText = "Gửi Email cho tôi";
-                btn.style.fontWeight = "500";
-                btn.style.background = "rgba(255,255,255,0.06)";
-                isEmailShowing = false;
-            }
+            btn.innerText = btn.innerText === "Gửi Email cho tôi" ? CONFIG.email : "Gửi Email cho tôi";
         }
 
         function toggleZalo() {
-            const qrWrapper = document.getElementById('qr-wrapper');
-            if(qrWrapper) qrWrapper.classList.toggle('open');
+            document.getElementById('zalo-box').classList.toggle('open');
         }
+
+        window.addEventListener('load', () => updateSlider(0));
     </script>
 </body>
 </html>

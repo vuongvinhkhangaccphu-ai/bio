@@ -1,82 +1,252 @@
 <!DOCTYPE html>
 <html lang="vi">
+
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="viewport"
+        content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
     <title>Bio Profile | Khang0811</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-    
+
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; outline: none; -webkit-tap-highlight-color: transparent; }
-        
-        html, body { 
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            outline: none;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        html,
+        body {
             height: 100%;
-            /* Fix giật lề trên mobile */
             overflow-x: hidden;
             scrollbar-gutter: stable;
         }
 
-        /* TÁCH NỀN RA RIÊNG ĐỂ CHỐNG ZOOM KHI SỔ QR */
         .bg-fixed {
             position: fixed;
-            top: 0; left: 0; width: 100%; height: 100%;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
             background: #000 url('nen.jpg') no-repeat center center;
             background-size: cover;
             z-index: -1;
-            /* Khóa nền, chống tính toán lại layout */
             transform: translateZ(0);
             -webkit-transform: translateZ(0);
         }
 
         .overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 0, 0, 0.45); 
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.45);
             z-index: 0;
         }
 
         body {
             font-family: 'Inter', sans-serif;
             color: #fff;
-            display: flex; justify-content: center; align-items: center;
+            display: flex;
+            justify-content: center;
+            align-items: center;
             padding: 40px 15px;
         }
 
-        ::-webkit-scrollbar { width: 0px; }
+        ::-webkit-scrollbar {
+            width: 0px;
+        }
 
+        /* --- LOA THÔNG MINH (FIX ICON & SLIDER) --- */
+        .music-player {
+            position: fixed;
+            bottom: 25px;
+            left: 20px;
+            z-index: 100;
+            display: flex;
+            align-items: center;
+            background: rgba(255, 255, 255, 0.12);
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            padding: 10px 14px;
+            border-radius: 50px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            transition: all 0.3s ease;
+        }
+
+        .music-controls {
+            display: flex;
+            align-items: center;
+            width: 0;
+            overflow: hidden;
+            transition: width 0.3s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .music-player:hover .music-controls,
+        .music-player.active .music-controls {
+            width: 110px;
+            margin-left: 10px;
+        }
+
+        .btn-mute {
+            background: none;
+            border: none;
+            color: #fff;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            padding: 0;
+        }
+
+        .btn-mute svg {
+            width: 20px;
+            height: 20px;
+            stroke: currentColor;
+            stroke-width: 2;
+            fill: none;
+        }
+
+        .volume-slider {
+            width: 100px;
+            height: 4px;
+            appearance: none;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 5px;
+            outline: none;
+            cursor: pointer;
+        }
+
+        .volume-slider::-webkit-slider-thumb {
+            appearance: none;
+            width: 12px;
+            height: 12px;
+            background: #fff;
+            border-radius: 50%;
+            box-shadow: 0 0 5px rgba(0, 0, 0, 0.3);
+        }
+
+        /* --- CONTAINER GIỮ NGUYÊN --- */
         .container {
-            position: relative; z-index: 2; width: 100%; max-width: 380px;
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 380px;
             padding: 40px 0 30px;
             text-align: center;
-            background: rgba(25, 25, 25, 0.4); 
+            background: rgba(25, 25, 25, 0.4);
             backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
             -webkit-backdrop-filter: blur(40px) saturate(200%) brightness(1.1);
             border-radius: 42px;
             border: 1px solid rgba(255, 255, 255, 0.18);
             box-shadow: inset 0 1.5px 4px rgba(255, 255, 255, 0.2), 0 30px 60px rgba(0, 0, 0, 0.5);
-            display: flex; flex-direction: column;
-            /* Transition mượt mà */
+            display: flex;
+            flex-direction: column;
             transition: all 0.5s cubic-bezier(0.33, 1, 0.68, 1);
         }
 
-        /* ... Các phần Avatar, H1, Nickname giữ nguyên ... */
-        .avatar { width: 90px; height: 90px; border-radius: 50%; object-fit: cover; border: 2px solid rgba(255, 255, 255, 0.35); margin: 0 auto 15px; }
-        h1 { font-size: 24px; font-weight: 700; margin-bottom: 6px; }
-        .nickname { font-size: 14px; opacity: 0.5; margin-bottom: 25px; display: block; }
-        
-        /* TABS */
-        .tabs-wrapper { background: rgba(255, 255, 255, 0.08); padding: 5px; border-radius: 20px; display: flex; position: relative; margin: 0 25px 25px; border: 1px solid rgba(255, 255, 255, 0.1); }
-        .tab-btn { flex: 1; padding: 12px 0; border: none; background: none; color: #fff; font-size: 13px; font-weight: 600; cursor: pointer; z-index: 2; opacity: 0.5; }
-        .tab-btn.active { opacity: 1; }
-        .tab-slider { position: absolute; height: calc(100% - 10px); top: 5px; left: 5px; background: rgba(255, 255, 255, 0.15); border-radius: 16px; z-index: 1; transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1); }
+        .avatar {
+            width: 90px;
+            height: 90px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 2px solid rgba(255, 255, 255, 0.35);
+            margin: 0 auto 15px;
+        }
 
-        .content-window { width: 100%; overflow: hidden; }
-        .content-wrapper { display: flex; width: 100%; transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1); }
-        .content-section { flex: 0 0 100%; padding: 0 25px; display: flex; flex-direction: column; gap: 12px; opacity: 0; scale: 0.98; transition: opacity 0.4s, scale 0.5s; }
-        .content-section.active { opacity: 1; scale: 1; }
+        h1 {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 6px;
+        }
 
-        .btn-link { display: block; background: rgba(255, 255, 255, 0.1); color: #fff; text-decoration: none; padding: 17px; border-radius: 18px; font-size: 15px; font-weight: 500; border: 1px solid rgba(255, 255, 255, 0.1); transition: 0.2s; }
+        .nickname {
+            font-size: 14px;
+            opacity: 0.5;
+            margin-bottom: 25px;
+            display: block;
+        }
 
-        /* ZALO ACCORDION - CHỐNG GIẬT NỀN */
+        .tabs-wrapper {
+            background: rgba(255, 255, 255, 0.08);
+            padding: 5px;
+            border-radius: 20px;
+            display: flex;
+            position: relative;
+            margin: 0 25px 25px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 12px 0;
+            border: none;
+            background: none;
+            color: #fff;
+            font-size: 13px;
+            font-weight: 600;
+            cursor: pointer;
+            z-index: 2;
+            opacity: 0.5;
+        }
+
+        .tab-btn.active {
+            opacity: 1;
+        }
+
+        .tab-slider {
+            position: absolute;
+            height: calc(100% - 10px);
+            top: 5px;
+            left: 5px;
+            background: rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            z-index: 1;
+            transition: transform 0.4s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .content-window {
+            width: 100%;
+            overflow: hidden;
+        }
+
+        .content-wrapper {
+            display: flex;
+            width: 100%;
+            transition: transform 0.5s cubic-bezier(0.33, 1, 0.68, 1);
+        }
+
+        .content-section {
+            flex: 0 0 100%;
+            padding: 0 25px;
+            display: flex;
+            flex-direction: column;
+            gap: 12px;
+            opacity: 0;
+            scale: 0.98;
+            transition: opacity 0.4s, scale 0.5s;
+        }
+
+        .content-section.active {
+            opacity: 1;
+            scale: 1;
+        }
+
+        .btn-link {
+            display: block;
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            text-decoration: none;
+            padding: 17px;
+            border-radius: 18px;
+            font-size: 15px;
+            font-weight: 500;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            transition: 0.2s;
+        }
+
         .zalo-expansion-container {
             background: rgba(0, 104, 255, 0.3);
             border: 1px solid rgba(0, 104, 255, 0.3);
@@ -86,37 +256,153 @@
             cursor: pointer;
         }
 
-        .zalo-label { padding: 17px; font-size: 15px; font-weight: 500; color: #fff; display: block; }
+        .zalo-label {
+            padding: 17px;
+            font-size: 15px;
+            font-weight: 500;
+            color: #fff;
+            display: block;
+        }
 
         .qr-reveal {
-            max-height: 0; opacity: 0; padding: 0 12px;
+            max-height: 0;
+            opacity: 0;
+            padding: 0 12px;
             transition: all 0.5s cubic-bezier(0.33, 1, 0.68, 1);
             overflow: hidden;
         }
 
-        .zalo-expansion-container.open { background: rgba(0, 104, 255, 0.4); border-radius: 25px; }
-        .zalo-expansion-container.open .qr-reveal { max-height: 550px; opacity: 1; padding-bottom: 12px; }
+        .zalo-expansion-container.open {
+            background: rgba(0, 104, 255, 0.4);
+            border-radius: 25px;
+        }
 
-        .qr-image-auto { width: 100%; height: auto; display: block; border-radius: 15px; background: #fff; }
+        .zalo-expansion-container.open .qr-reveal {
+            max-height: 550px;
+            opacity: 1;
+            padding-bottom: 12px;
+        }
 
-        .credit { margin-top: 40px; font-size: 10px; opacity: 0.25; letter-spacing: 2px; }
+        .qr-image-auto {
+            width: 100%;
+            height: auto;
+            display: block;
+            border-radius: 15px;
+            background: #fff;
+        }
+
+        .credit {
+            margin-top: 40px;
+            font-size: 10px;
+            opacity: 0.25;
+            letter-spacing: 2px;
+        }
     </style>
 </head>
+
 <body>
     <div class="bg-fixed"></div>
     <div class="overlay"></div>
+
+    <div class="music-player" id="player-ui">
+        <button class="btn-mute" onclick="toggleMute()" id="mute-btn-container">
+            <svg id="music-svg" viewBox="0 0 24 24"></svg>
+        </button>
+        <div class="music-controls">
+            <input type="range" class="volume-slider" id="volume-control" min="0" max="1" step="0.01" value="0.5">
+        </div>
+    </div>
+
+    <audio id="bg-music" loop>
+        <source src="nhac-nen.mp3" type="audio/mpeg">
+    </audio>
+    <audio id="click-sound">
+        <source src="click.mp3" type="audio/mpeg">
+    </audio>
 
     <div class="container">
         <img src="avatar.jpg" alt="Avatar" class="avatar">
         <h1 id="user-name"></h1>
         <span class="nickname" id="user-nickname"></span>
-        <div class="tabs-wrapper" id="tabs-header"><div class="tab-slider" id="slider"></div></div>
-        <div class="content-window"><div class="content-wrapper" id="master-slider"></div></div>
+        <div class="tabs-wrapper" id="tabs-header">
+            <div class="tab-slider" id="slider"></div>
+        </div>
+        <div class="content-window">
+            <div class="content-wrapper" id="master-slider"></div>
+        </div>
         <div class="credit">cre: khang0811</div>
     </div>
 
     <script src="config.js"></script>
     <script>
+        const bgMusic = document.getElementById('bg-music');
+        const clickSound = document.getElementById('click-sound');
+        const volSlider = document.getElementById('volume-control');
+        const musicSvg = document.getElementById('music-svg');
+        const playerUi = document.getElementById('player-ui');
+
+        // Định nghĩa sẵn các Path cho SVG
+        const icons = {
+            muted: '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><line x1="23" y1="9" x2="17" y2="15"/><line x1="17" y1="9" x2="23" y2="15"/>',
+            low: '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>',
+            high: '<path d="M11 5L6 9H2V15H6L11 19V5Z"/><path d="M19.07 4.93a10 10 0 0 1 0 14.14"/><path d="M15.54 8.46a5 5 0 0 1 0 7.07"/>'
+        };
+
+        function updateUI() {
+            let v = parseFloat(volSlider.value);
+
+            // Ép về 0 nếu quá thấp để dứt điểm âm thanh hoàn toàn
+            if (v < 0.01) v = 0;
+            bgMusic.volume = v;
+            bgMusic.muted = (v === 0);
+
+            // FIX THANH ÂM LƯỢNG BỊ THỪA:
+            // Sử dụng công thức tính phần trăm chính xác để dải màu trắng biến mất hoàn toàn khi về 0
+            const percent = v * 100;
+            volSlider.style.background = `linear-gradient(to right, #fff 0%, #fff ${percent}%, rgba(255,255,255,0.2) ${percent}%, rgba(255,255,255,0.2) 100%)`;
+
+            // Cập nhật Icon SVG
+            if (bgMusic.paused || v === 0) {
+                musicSvg.innerHTML = icons.muted;
+            } else if (v < 0.5) {
+                musicSvg.innerHTML = icons.low;
+            } else {
+                musicSvg.innerHTML = icons.high;
+            }
+        }
+
+        volSlider.addEventListener('input', () => {
+            if (bgMusic.paused && volSlider.value > 0.05) bgMusic.play();
+            updateUI();
+        });
+
+        function toggleMute() {
+            playClick();
+            if (bgMusic.paused) {
+                bgMusic.play();
+                if (parseFloat(volSlider.value) < 0.05) volSlider.value = 0.5;
+            } else {
+                bgMusic.pause();
+            }
+            updateUI();
+        }
+
+        function playClick() {
+            clickSound.currentTime = 0; clickSound.volume = 0.4;
+            clickSound.play().catch(() => { });
+        }
+
+        document.body.addEventListener('click', () => {
+            if (bgMusic.paused) {
+                bgMusic.play().then(() => {
+                    bgMusic.volume = 0.5;
+                    volSlider.value = 0.5;
+                    updateUI();
+                }).catch(() => { });
+            }
+        }, { once: true });
+
+        // --- TABS & CONFIG GIỮ NGUYÊN ---
         document.getElementById('user-name').innerText = CONFIG.profile.name;
         document.getElementById('user-nickname').innerText = CONFIG.profile.nickname;
         const header = document.getElementById('tabs-header');
@@ -128,16 +414,16 @@
             const btn = document.createElement('button');
             btn.className = `tab-btn ${index === 0 ? 'active' : ''}`;
             btn.innerText = tab.title;
-            btn.onclick = () => handleTabClick(index);
+            btn.onclick = () => { playClick(); handleTabClick(index); };
             header.appendChild(btn);
             const section = document.createElement('div');
             section.className = `content-section ${index === 0 ? 'active' : ''}`;
-            let html = tab.links.map(l => `<a href="${l.url}" class="btn-link" target="_blank">${l.title}</a>`).join('');
-            if(tab.showSpecial) {
-                html += `<div class="btn-link" id="email-btn" onclick="toggleEmail()">Gửi Email cho tôi</div>
-                         <div class="zalo-expansion-container" id="zalo-box" onclick="toggleZalo()">
+            let html = tab.links.map(l => `<a href="${l.url}" class="btn-link" target="_blank" onclick="playClick()">${l.title}</a>`).join('');
+            if (tab.showSpecial) {
+                html += `<div class="btn-link" id="email-btn" onclick="playClick(); toggleEmail()">Gửi Email cho tôi</div>
+                         <div class="zalo-expansion-container" id="zalo-box" onclick="playClick(); toggleZalo()">
                             <div class="zalo-label">Zalo QR Code</div>
-                            <div class="qr-reveal"><img src="zalo-qr.jpg" class="qr-image-auto" alt="Zalo QR"></div>
+                            <div class="qr-reveal"><img src="zalo-qr.jpg" class="qr-image-auto"></div>
                          </div>`;
             }
             section.innerHTML = html;
@@ -145,8 +431,7 @@
         });
 
         function updateSlider(index) {
-            const wrapperWidth = header.clientWidth - 10; 
-            const tabWidth = wrapperWidth / tabCount;
+            const tabWidth = (header.clientWidth - 10) / tabCount;
             slider.style.width = `${tabWidth}px`;
             slider.style.transform = `translateX(${index * tabWidth}px)`;
             masterSlider.style.transform = `translateX(-${index * 100}%)`;
@@ -156,20 +441,17 @@
             updateSlider(index);
             document.querySelectorAll('.tab-btn').forEach((btn, i) => btn.classList.toggle('active', i === index));
             document.querySelectorAll('.content-section').forEach((sec, i) => sec.classList.toggle('active', i === index));
-            const zaloBox = document.getElementById('zalo-box');
-            if(zaloBox) zaloBox.classList.remove('open');
         }
 
         function toggleEmail() {
             const btn = document.getElementById('email-btn');
             btn.innerText = btn.innerText === "Gửi Email cho tôi" ? CONFIG.email : "Gửi Email cho tôi";
         }
+        function toggleZalo() { document.getElementById('zalo-box').classList.toggle('open'); }
 
-        function toggleZalo() {
-            document.getElementById('zalo-box').classList.toggle('open');
-        }
-
-        window.addEventListener('load', () => updateSlider(0));
+        window.addEventListener('load', () => { updateSlider(0); updateUI(); });
+        playerUi.addEventListener('touchstart', (e) => { if (e.target !== volSlider) playerUi.classList.toggle('active'); });
     </script>
 </body>
+
 </html>

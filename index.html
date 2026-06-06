@@ -626,6 +626,11 @@
         window.addEventListener('load', () => setTimeout(() => document.getElementById('preloader').classList.add('hide'), 350));
         setTimeout(() => document.getElementById('preloader').classList.add('hide'), 2500);
 
+        /* ================= SERVICE WORKER (offline / PWA) ================= */
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+        }
+
         /* ================= PARTICLES ================= */
         (function () {
             if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;

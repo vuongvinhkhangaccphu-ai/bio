@@ -20,6 +20,22 @@
     <meta name="twitter:description" content="Kết nối với mình qua Facebook, Discord, Zalo và các dự án Bot.">
     <meta name="twitter:image" content="avatar.jpg">
 
+    <!-- Structured data (SEO) -->
+    <script type="application/ld+json">
+    {
+        "@context": "https://schema.org",
+        "@type": "Person",
+        "name": "Vương Vĩnh Khang",
+        "alternateName": "khang0811",
+        "description": "Developer • Bot Maker • ZuraMC",
+        "image": "avatar.jpg",
+        "sameAs": [
+            "https://www.facebook.com/vinh.khang.vuong.766136",
+            "https://discord.com/users/1061202628572364840"
+        ]
+    }
+    </script>
+
     <!-- Favicon / PWA -->
     <link rel="icon" href="avatar.jpg" type="image/jpeg">
     <link rel="apple-touch-icon" href="avatar.jpg">
@@ -261,6 +277,36 @@
         #toast.show { opacity: 1; visibility: visible; transform: translateX(-50%) translateY(0); }
         #toast svg { width: 17px; height: 17px; color: #3ba55d; }
 
+        /* ---------- SHARE FAB ---------- */
+        .fab-share {
+            position: fixed; top: calc(14px + var(--safe-t)); right: 14px; z-index: 100;
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--glass-strong);
+            backdrop-filter: blur(18px) saturate(170%); -webkit-backdrop-filter: blur(18px) saturate(170%);
+            border: 1px solid var(--hair); color: var(--ink); cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 8px 22px rgba(0,0,0,0.4); transition: transform .15s ease, background .2s ease;
+            opacity: 0; animation: revealUp 0.6s cubic-bezier(0.16,1,0.3,1) 0.7s forwards;
+        }
+        .fab-share:hover { background: rgba(255,255,255,0.12); }
+        .fab-share:active { transform: scale(0.9); }
+        .fab-share svg { width: 18px; height: 18px; stroke: currentColor; stroke-width: 2; fill: none; }
+
+        /* Ảnh bìa xoay như đĩa than khi đang phát + quầng sáng */
+        .np-cover { transition: border-radius 0.4s ease; }
+        .np-cover.spinning { border-radius: 50%; animation: spin 7s linear infinite; }
+        .now-playing.playing { box-shadow: 0 12px 34px rgba(0,0,0,0.5), 0 0 0 1px rgba(138,162,255,0.3); }
+
+        /* Marquee tên bài dài */
+        .np-title.is-marquee { overflow: hidden; }
+        .np-title.is-marquee .mq { display: inline-block; white-space: nowrap; animation: marquee 11s linear infinite; }
+        @keyframes marquee { from { transform: translateX(0); } to { transform: translateX(-50%); } }
+
+        /* Focus accessibility */
+        a:focus-visible, button:focus-visible, .btn-link:focus-visible, .tab-btn:focus-visible, .zalo-expansion-container:focus-visible {
+            box-shadow: 0 0 0 2px rgba(138,162,255,0.85);
+        }
+
         @media (prefers-reduced-motion: reduce) { *, *::before, *::after { animation-duration: .001s !important; animation-iteration-count: 1 !important; } }
     </style>
 </head>
@@ -272,6 +318,10 @@
     <div class="aurora"></div>
     <div class="scrim"></div>
     <canvas id="particles"></canvas>
+
+    <button class="fab-share" id="share-btn" onclick="sharePage()" aria-label="Chia sẻ trang">
+        <svg viewBox="0 0 24 24"><circle cx="18" cy="5" r="3"/><circle cx="6" cy="12" r="3"/><circle cx="18" cy="19" r="3"/><line x1="8.6" y1="13.5" x2="15.4" y2="17.5"/><line x1="15.4" y1="6.5" x2="8.6" y2="10.5"/></svg>
+    </button>
 
     <audio id="bg-music" loop preload="auto"><source src="nhac-nen.mp3" type="audio/mpeg"></audio>
     <audio id="click-sound" preload="auto"><source src="click.mp3" type="audio/mpeg"></audio>
@@ -356,6 +406,7 @@
         const npPlay = document.getElementById('np-play');
         const npBar = document.getElementById('np-bar');
         const npProgress = document.getElementById('np-progress');
+        const npCover = document.getElementById('np-cover');
         const playerUi = document.getElementById('player-ui');
 
         const PLAY_ICON = '<svg viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>';
@@ -375,9 +426,23 @@
             volSlider.style.background = `linear-gradient(to right, #fff 0%, #fff ${percent}%, rgba(255,255,255,0.2) ${percent}%, rgba(255,255,255,0.2) 100%)`;
 
             npPlay.innerHTML = bgMusic.paused ? PLAY_ICON : PAUSE_ICON;
+            playerUi.classList.toggle('playing', !bgMusic.paused && v > 0);
+            npCover.classList.toggle('spinning', !bgMusic.paused);
             if (v === 0) volIcon.innerHTML = volIcons.muted;
             else if (v < 0.5) volIcon.innerHTML = volIcons.low;
             else volIcon.innerHTML = volIcons.high;
+        }
+
+        function sharePage() {
+            playClick();
+            const data = { title: document.title, text: 'Bio của ' + (CONFIG.profile.name || ''), url: location.href };
+            if (navigator.share) {
+                navigator.share(data).catch(() => {});
+            } else if (navigator.clipboard && navigator.clipboard.writeText) {
+                navigator.clipboard.writeText(location.href).then(() => showToast('Đã sao chép link!')).catch(() => {});
+            } else {
+                fallbackCopy(location.href, () => showToast('Đã sao chép link!'));
+            }
         }
 
         volSlider.addEventListener('input', () => {
@@ -506,14 +571,43 @@
             slider.style.transform = `translateX(${index * tabWidth}px)`;
             masterSlider.style.transform = `translateX(-${index * 100}%)`;
         }
+        let currentTab = 0;
         function handleTabClick(index) {
+            currentTab = index;
             updateSlider(index);
             document.querySelectorAll('.tab-btn').forEach((b, i) => b.classList.toggle('active', i === index));
             document.querySelectorAll('.content-section').forEach((s, i) => s.classList.toggle('active', i === index));
         }
+        function switchTab(i) { if (i < 0 || i >= tabCount) return; playClick(); handleTabClick(i); }
         function toggleZalo() { document.getElementById('zalo-box').classList.toggle('open'); }
 
-        window.addEventListener('load', () => { updateSlider(0); updateUI(); });
+        // Vuốt trái/phải để đổi tab (mobile)
+        const cw = document.querySelector('.content-window');
+        let tsx = 0, tsy = 0;
+        cw.addEventListener('touchstart', (e) => { tsx = e.changedTouches[0].clientX; tsy = e.changedTouches[0].clientY; }, { passive: true });
+        cw.addEventListener('touchend', (e) => {
+            const dx = e.changedTouches[0].clientX - tsx;
+            const dy = e.changedTouches[0].clientY - tsy;
+            if (Math.abs(dx) > 45 && Math.abs(dx) > Math.abs(dy) * 1.4) switchTab(currentTab + (dx < 0 ? 1 : -1));
+        }, { passive: true });
+
+        // Phím mũi tên đổi tab (desktop)
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight') switchTab(currentTab + 1);
+            else if (e.key === 'ArrowLeft') switchTab(currentTab - 1);
+        });
+
+        // Tên bài dài thì chạy marquee
+        function setupMarquee(el) {
+            if (!el) return;
+            if (el.scrollWidth > el.clientWidth + 2) {
+                const txt = el.textContent;
+                el.innerHTML = '<span class="mq">' + txt + '     ' + txt + '</span>';
+                el.classList.add('is-marquee');
+            }
+        }
+
+        window.addEventListener('load', () => { updateSlider(0); updateUI(); setupMarquee(document.getElementById('np-title')); });
         window.addEventListener('resize', () => {
             const a = [...document.querySelectorAll('.tab-btn')].findIndex(b => b.classList.contains('active'));
             updateSlider(a < 0 ? 0 : a);

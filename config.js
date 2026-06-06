@@ -42,8 +42,8 @@ const CONFIG = {
 
     // Thông tin hiển thị trên thanh nhạc (kiểu Spotify)
     music: {
-        title: "Nhạc nền",
-        artist: "khang0811",
+        title: "Gió Vẫn Hát",
+        artist: "Long Phạm",
         cover: "avatar.jpg"   // ảnh bìa nhỏ bên trái thanh nhạc
     }
 };

@@ -38,5 +38,12 @@ const CONFIG = {
             ]
         }
     ],
-    email: "vuongvinhkhang98@gmail.com"
+    email: "vuongvinhkhang98@gmail.com",
+
+    // Thông tin hiển thị trên thanh nhạc (kiểu Spotify)
+    music: {
+        title: "Nhạc nền",
+        artist: "khang0811",
+        cover: "avatar.jpg"   // ảnh bìa nhỏ bên trái thanh nhạc
+    }
 };

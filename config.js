@@ -3,6 +3,7 @@ const CONFIG = {
         name: "Vương Vĩnh Khang",
         nickname: "@khang0811",
         bio: "Developer • Bot Maker • ZuraMC",   // dòng giới thiệu ngắn (để "" nếu không muốn hiện)
+        location: "Việt Nam",                      // hiện ở chip nhỏ dưới bio (để "" nếu không muốn hiện)
         status: "online",                          // online | idle | dnd | offline
         verified: true                             // hiện tick xanh cạnh tên
     },

@@ -1,6 +1,6 @@
 /* Service worker cho Bio — hỗ trợ offline + tải nhanh lần sau.
    Đổi VERSION mỗi khi muốn ép làm mới toàn bộ cache. */
-const VERSION = 'bio-v1';
+const VERSION = 'bio-v2';
 
 // App shell: precache những thứ nhẹ & cốt lõi để xem offline.
 // (nhac-nen.mp3 không precache vì file lớn + dùng range request,
